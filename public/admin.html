@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Predict the People</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-box">
+                <h1>🔐 Admin Login</h1>
+                <p>Enter password to access admin panel</p>
+                <input type="password" id="passwordInput" placeholder="Admin Password">
+                <button id="loginButton" class="btn-primary">Login</button>
+                <div id="loginError" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden">
+            <header class="admin-header">
+                <h1>📊 Admin Panel</h1>
+                <button id="logoutButton" class="btn-secondary">Logout</button>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Add Question Section -->
+                <div class="card">
+                    <h2>➕ Add New Question</h2>
+                    <form id="addQuestionForm">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="newDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Question</label>
+                            <input type="text" id="newQuestion" placeholder="What's your question?" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Answer Choices (2-4 options)</label>
+                            <div id="choicesInputs">
+                                <input type="text" class="choice-input" placeholder="Choice 1" required>
+                                <input type="text" class="choice-input" placeholder="Choice 2" required>
+                            </div>
+                            <div class="choice-buttons">
+                                <button type="button" id="addChoiceBtn" class="btn-small">+ Add Choice</button>
+                                <button type="button" id="removeChoiceBtn" class="btn-small">- Remove Choice</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Add Question</button>
+                        <div id="addError" class="error-message hidden"></div>
+                        <div id="addSuccess" class="success-message hidden"></div>
+                    </form>
+                </div>
+
+                <!-- Questions List -->
+                <div class="card">
+                    <h2>📋 All Questions</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="future">Future</button>
+                        <button class="filter-tab" data-filter="today">Today</button>
+                        <button class="filter-tab" data-filter="past">Past</button>
+                    </div>
+                    <div id="questionsList" class="questions-list">
+                        <p class="loading">Loading questions...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>✏️ Edit Question</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="editQuestionForm">
+                    <input type="hidden" id="editId">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="editDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Question</label>
+                        <input type="text" id="editQuestion" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Answer Choices</label>
+                        <div id="editChoicesInputs"></div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                        <button type="button" class="btn-secondary cancel-edit">Cancel</button>
+                    </div>
+                    <div id="editError" class="error-message hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
