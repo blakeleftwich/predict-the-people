@@ -185,7 +185,8 @@ app.get('/api/today', async (req, res) => {
         id: data.id,
         date: data.published_at,
         question: data.question_text,
-        choices: data.options
+        choices: data.options,
+        imageUrl: data.image_url || DEFAULT_IMAGES.question // Use custom or default
       };
       
       res.json(getQuestionStatus(question));
