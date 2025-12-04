@@ -243,6 +243,15 @@ async function init() {
 
 // Display Question
 function displayQuestion(question) {
+    // Display hero image if available
+    const heroImage = document.getElementById('questionHeroImage');
+    if (question.imageUrl) {
+        heroImage.style.backgroundImage = `url('${question.imageUrl}')`;
+        heroImage.style.display = 'block';
+    } else {
+        heroImage.style.display = 'none';
+    }
+    
     document.getElementById('questionText').textContent = question.question;
     
     // Format and display date
@@ -287,6 +296,16 @@ function selectAnswer(answer) {
 // Submit Answer and Move to Guess View
 document.getElementById('submitAnswer').addEventListener('click', () => {
     if (!selectedAnswer) return;
+    
+    // Display hero image with gradient overlay in guess view
+    const guessHeroImage = document.getElementById('guessHeroImage');
+    if (currentQuestion.imageUrl) {
+        guessHeroImage.style.backgroundImage = `linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%), url('${currentQuestion.imageUrl}')`;
+        guessHeroImage.style.backgroundBlendMode = 'multiply';
+        guessHeroImage.style.display = 'block';
+    } else {
+        guessHeroImage.style.display = 'none';
+    }
     
     // Update heading based on number of choices
     const guessHeading = document.getElementById('guessViewHeading');
