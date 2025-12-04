@@ -350,9 +350,16 @@ header h1 {
     border-color: #667eea;
 }
 
+.choice-button.selected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+    transform: scale(1.02);
+}
+
 .btn-primary {
     width: 100%;
-    background: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 15px;
@@ -1060,22 +1067,21 @@ header h1 {
 }
 
 /* Gradient button styles for question screen */
-/* Gradient button styles for question screen */
 .choice-button.selected {
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
-    color: white !important;
-    border-color: transparent !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    color: white;
+    border-color: transparent;
 }
 
 /* Override for guess/prediction screen */
 #guessView .choice-button.selected {
-    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%) !important;
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
 }
 
 /* Gradient submit buttons */
 #submitAnswer {
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
-    border: none !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    border: none;
 }
 
 #submitAnswer:hover:not(:disabled) {
@@ -1084,8 +1090,8 @@ header h1 {
 }
 
 #submitGuess {
-    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%) !important;
-    border: none !important;
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    border: none;
 }
 
 #submitGuess:hover:not(:disabled) {
