@@ -103,35 +103,35 @@ function setupAddQuestionForm() {
         }
 
         try {
-            const response = await fetch('/api/admin/questions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Admin-Password': adminPassword
-                },
-                body: JSON.stringify({ date, question, choices, imageUrl: imageUrl || null })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                showSuccess(document.getElementById('addSuccess'), 'Question added successfully!');
-                
-                // Sync to Supabase
-                await syncQuestionToSupabase(data.id, question, choices, date, imageUrl || null);
-                
-                form.reset();
-                loadQuestions();
-                
-                // Clear success message after 3 seconds
-                setTimeout(() => {
-                    document.getElementById('addSuccess').classList.add('hidden');
-                }, 3000);
-            } else {
-                showError(document.getElementById('addError'), data.message || 'Error adding question');
+            // Generate new ID by checking existing questions
+            const { data: existingQuestions } = await supabase
+                .from('poll_questions')
+                .select('id')
+                .order('id', { ascending: false })
+                .limit(1);
+            
+            let newIdNum = 1;
+            if (existingQuestions && existingQuestions.length > 0) {
+                const lastId = existingQuestions[0].id;
+                const lastNum = parseInt(lastId.replace('q', ''));
+                newIdNum = lastNum + 1;
             }
+            const newId = `q${newIdNum}`;
+            
+            // Add directly to Supabase
+            await syncQuestionToSupabase(newId, question, choices, date, imageUrl || null);
+            
+            showSuccess(document.getElementById('addSuccess'), 'Question added successfully!');
+            form.reset();
+            loadQuestions();
+            
+            // Clear success message after 3 seconds
+            setTimeout(() => {
+                document.getElementById('addSuccess').classList.add('hidden');
+            }, 3000);
+            
         } catch (error) {
-            showError(document.getElementById('addError'), 'Error connecting to server');
+            showError(document.getElementById('addError'), 'Error adding question: ' + error.message);
         }
     });
 }
@@ -268,28 +268,29 @@ function setupEditModal() {
         }
 
         try {
-            const response = await fetch(`/api/admin/questions/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Admin-Password': adminPassword
-                },
-                body: JSON.stringify({ date, question, choices, imageUrl: imageUrl || null })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Sync update to Supabase
-                await syncQuestionToSupabase(id, question, choices, date, imageUrl || null);
-                
-                modal.classList.add('hidden');
-                loadQuestions();
-            } else {
-                showError(document.getElementById('editError'), data.message || 'Error updating question');
-            }
+            // Update directly in Supabase (skip file system)
+            await syncQuestionToSupabase(id, question, choices, date, imageUrl || null);
+            
+            modal.classList.add('hidden');
+            loadQuestions();
+            
+            // Show success message briefly
+            const successMsg = document.createElement('div');
+            successMsg.className = 'success-message';
+            successMsg.textContent = 'Question updated successfully!';
+            successMsg.style.position = 'fixed';
+            successMsg.style.top = '20px';
+            successMsg.style.right = '20px';
+            successMsg.style.padding = '12px 24px';
+            successMsg.style.background = '#10b981';
+            successMsg.style.color = 'white';
+            successMsg.style.borderRadius = '8px';
+            successMsg.style.zIndex = '10000';
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 3000);
+            
         } catch (error) {
-            showError(document.getElementById('editError'), 'Error connecting to server');
+            showError(document.getElementById('editError'), 'Error updating question: ' + error.message);
         }
     });
 }
@@ -371,10 +372,10 @@ function formatDate(dateString) {
 // ===== SUPABASE SYNC =====
 async function syncQuestionToSupabase(questionId, questionText, choices, publishDate, imageUrl = null) {
     try {
-        // Calculate results unlock date (3 days after publish)
+        // Calculate results unlock date (1 day after publish)
         const publishDateObj = new Date(publishDate);
         const unlockDateObj = new Date(publishDateObj);
-        unlockDateObj.setDate(unlockDateObj.getDate() + 3);
+        unlockDateObj.setDate(unlockDateObj.getDate() + 1);
         const resultsUnlockDate = unlockDateObj.toISOString().split('T')[0];
         
         // Check if question already exists in Supabase
