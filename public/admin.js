@@ -93,6 +93,7 @@ function setupAddQuestionForm() {
         
         const date = document.getElementById('newDate').value;
         const question = document.getElementById('newQuestion').value;
+        const imageUrl = document.getElementById('newImageUrl').value.trim();
         const choiceInputs = choicesContainer.querySelectorAll('.choice-input');
         const choices = Array.from(choiceInputs).map(input => input.value.trim()).filter(v => v);
 
@@ -108,7 +109,7 @@ function setupAddQuestionForm() {
                     'Content-Type': 'application/json',
                     'X-Admin-Password': adminPassword
                 },
-                body: JSON.stringify({ date, question, choices })
+                body: JSON.stringify({ date, question, choices, imageUrl: imageUrl || null })
             });
 
             const data = await response.json();
@@ -117,7 +118,7 @@ function setupAddQuestionForm() {
                 showSuccess(document.getElementById('addSuccess'), 'Question added successfully!');
                 
                 // Sync to Supabase
-                await syncQuestionToSupabase(data.id, question, choices, date);
+                await syncQuestionToSupabase(data.id, question, choices, date, imageUrl || null);
                 
                 form.reset();
                 loadQuestions();
@@ -257,6 +258,7 @@ function setupEditModal() {
         const id = document.getElementById('editId').value;
         const date = document.getElementById('editDate').value;
         const question = document.getElementById('editQuestion').value;
+        const imageUrl = document.getElementById('editImageUrl').value.trim();
         const choiceInputs = document.querySelectorAll('#editChoicesInputs .choice-input');
         const choices = Array.from(choiceInputs).map(input => input.value.trim()).filter(v => v);
 
@@ -272,14 +274,14 @@ function setupEditModal() {
                     'Content-Type': 'application/json',
                     'X-Admin-Password': adminPassword
                 },
-                body: JSON.stringify({ date, question, choices })
+                body: JSON.stringify({ date, question, choices, imageUrl: imageUrl || null })
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 // Sync update to Supabase
-                await syncQuestionToSupabase(id, question, choices, date);
+                await syncQuestionToSupabase(id, question, choices, date, imageUrl || null);
                 
                 modal.classList.add('hidden');
                 loadQuestions();
@@ -299,6 +301,7 @@ function editQuestion(id) {
     document.getElementById('editId').value = question.id;
     document.getElementById('editDate').value = question.date;
     document.getElementById('editQuestion').value = question.question;
+    document.getElementById('editImageUrl').value = question.imageUrl || '';
 
     const choicesContainer = document.getElementById('editChoicesInputs');
     choicesContainer.innerHTML = '';
@@ -366,7 +369,7 @@ function formatDate(dateString) {
 }
 
 // ===== SUPABASE SYNC =====
-async function syncQuestionToSupabase(questionId, questionText, choices, publishDate) {
+async function syncQuestionToSupabase(questionId, questionText, choices, publishDate, imageUrl = null) {
     try {
         // Calculate results unlock date (3 days after publish)
         const publishDateObj = new Date(publishDate);
@@ -390,7 +393,8 @@ async function syncQuestionToSupabase(questionId, questionText, choices, publish
                     question_text: questionText,
                     options: choices,
                     published_at: publishDate,
-                    results_unlock_date: resultsUnlockDate
+                    results_unlock_date: resultsUnlockDate,
+                    image_url: imageUrl
                 });
             
             if (error) {
@@ -406,7 +410,8 @@ async function syncQuestionToSupabase(questionId, questionText, choices, publish
                     question_text: questionText,
                     options: choices,
                     published_at: publishDate,
-                    results_unlock_date: resultsUnlockDate
+                    results_unlock_date: resultsUnlockDate,
+                    image_url: imageUrl
                 })
                 .eq('id', questionId);
             
