@@ -15,6 +15,12 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1
 // Use service_role key for server-side queries (bypasses RLS)
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// Default image URLs
+const DEFAULT_IMAGES = {
+  question: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=400&fit=crop',
+  prediction: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop'
+};
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -211,7 +217,8 @@ app.get('/api/question/:id', async (req, res) => {
       id: data.id,
       date: data.published_at,
       question: data.question_text,
-      choices: data.options
+      choices: data.options,
+      imageUrl: data.image_url || DEFAULT_IMAGES.question // Use custom or default
     };
     
     res.json(getQuestionStatus(question));
@@ -245,7 +252,8 @@ app.get('/api/past-questions', async (req, res) => {
         id: q.id,
         date: q.published_at,
         question: q.question_text,
-        choices: q.options
+        choices: q.options,
+        imageUrl: q.image_url || DEFAULT_IMAGES.question // Use custom or default
       };
       return getQuestionStatus(question);
     });
@@ -425,7 +433,8 @@ app.get('/api/admin/questions', checkAdminAuth, async (req, res) => {
         id: q.id,
         date: q.published_at,
         question: q.question_text,
-        choices: q.options
+        choices: q.options,
+        imageUrl: q.image_url || null // Include image_url
       };
       
       const status = getQuestionStatus(question);
