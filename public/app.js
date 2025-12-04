@@ -219,6 +219,7 @@ async function init() {
         
         const todayQuestion = await response.json();
         currentQuestion = todayQuestion;
+        window.currentQuestion = currentQuestion; // Update window reference
         
         // Check if question is locked (1+ days old)
         if (!todayQuestion.canAnswer) {
@@ -243,6 +244,10 @@ async function init() {
 
 // Display Question
 function displayQuestion(question) {
+    // Update global reference
+    currentQuestion = question;
+    window.currentQuestion = question;
+    
     // Display hero image if available
     const heroImage = document.getElementById('questionHeroImage');
     if (question.imageUrl) {
