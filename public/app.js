@@ -250,6 +250,9 @@ async function init() {
 
 // Display Question
 function displayQuestion(question) {
+    // Hide loading screen
+    document.getElementById('loadingScreen').classList.add('hidden');
+    
     // Update global reference
     currentQuestion = question;
     window.currentQuestion = question;
