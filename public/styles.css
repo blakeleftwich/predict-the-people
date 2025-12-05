@@ -1348,3 +1348,100 @@ body {
 .countdown-separator {
     display: none !important;
 }
+/* ========================================
+   CRITICAL FIXES - Add to END of styles.css
+   ======================================== */
+
+/* 1. FIX PAST POLL CARDS - Make them visible and clickable */
+.past-poll-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.past-poll-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.past-poll-hero {
+    width: 100% !important;
+    height: 120px !important;
+    background-size: cover !important;
+    background-position: center !important;
+    position: relative !important;
+}
+
+.past-poll-content {
+    padding: 16px !important;
+}
+
+.past-poll-question {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    line-height: 1.4 !important;
+}
+
+.past-poll-meta {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+/* 2. FIX STATUS BADGES - Make them look like mobile preview */
+.past-poll-status {
+    display: inline-block !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+.past-poll-status.answered {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+}
+
+.past-poll-status.unanswered {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+/* 3. FIX SIGN IN CARD - SOLID border, not dashed */
+.signin-card,
+#loginPrompt {
+    background: white !important;
+    border: 2px solid #e5e7eb !important; /* SOLID, not dashed */
+    border-radius: 16px !important;
+    padding: 24px !important;
+    text-align: center !important;
+    margin-top: 24px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 4. HIDE PAST POLLS ON PREDICTION SCREEN */
+#guessView .past-questions-section {
+    display: none !important;
+}
+
+/* Keep Past Polls visible on Locked and Results screens */
+#lockedView .past-questions-section,
+#resultsView .past-questions-section {
+    display: block !important;
+}
+
+/* 5. Ensure Past Questions List is visible */
+.past-questions-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+}
