@@ -223,10 +223,16 @@ async function init() {
         
         // Check if question is locked (1+ days old)
         if (!todayQuestion.canAnswer) {
-            // Question is locked, show results
+        // Question is locked but results not ready yet
+        if (!todayQuestion.canViewResults) {
+            showLockedView(todayQuestion);
+            await loadPastQuestions();
+        } else {
+            // Results are ready, show them
             await showResults(todayQuestion.id);
             await loadPastQuestions();
         }
+}
         // Check if user already answered today's question (check DB if logged in)
         else if (await hasAnsweredQuestionInDB(todayQuestion.id)) {
             // Skip to results (or placeholder if locked)
@@ -301,6 +307,8 @@ function selectAnswer(answer) {
 // Submit Answer and Move to Guess View
 document.getElementById('submitAnswer').addEventListener('click', () => {
     if (!selectedAnswer) return;
+
+    document.getElementById('userChoiceText').textContent = selectedAnswer; //new code for v2
     
     // Display hero image with gradient overlay in guess view
     const guessHeroImage = document.getElementById('guessHeroImage');
@@ -799,6 +807,77 @@ function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
 }
 
+//new code for v2----------------------
+// ========== ADD THESE FUNCTIONS TO app.js ==========
+// Insert after line 800 (after showResults function)
+
+// Show Locked View with Countdown
+function showLockedView(question) {
+    console.log('🔒 Showing locked view for:', question.id);
+    
+    // Set locked question
+    document.getElementById('lockedQuestion').textContent = question.question;
+    
+    // Display hero image
+    const lockedHeroImage = document.getElementById('lockedHeroImage');
+    if (question.imageUrl) {
+        lockedHeroImage.style.backgroundImage = `url('${question.imageUrl}')`;
+        lockedHeroImage.style.display = 'block';
+    } else {
+        lockedHeroImage.style.display = 'none';
+    }
+    
+    // Hide loading screen
+    document.getElementById('loadingScreen').classList.add('hidden');
+    
+    // Start countdown timer
+    startCountdown(question.date);
+    
+    // Set up sign in button
+    document.getElementById('lockedSignInBtn').onclick = () => {
+        document.getElementById('authButton').click();
+    };
+    
+    showView('lockedView');
+}
+
+// Countdown Timer
+function startCountdown(publishDate) {
+    // Results unlock at midnight tomorrow (next day at 00:00:00)
+    const unlockTime = new Date(publishDate);
+    unlockTime.setDate(unlockTime.getDate() + 1);
+    unlockTime.setHours(0, 0, 0, 0);
+    
+    console.log('⏰ Countdown to:', unlockTime);
+    
+    function updateCountdown() {
+        const now = new Date();
+        const diff = unlockTime - now;
+        
+        if (diff <= 0) {
+            document.getElementById('hoursLeft').textContent = '00';
+            document.getElementById('minsLeft').textContent = '00';
+            document.getElementById('secsLeft').textContent = '00';
+            return;
+        }
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById('hoursLeft').textContent = String(hours).padStart(2, '0');
+        document.getElementById('minsLeft').textContent = String(mins).padStart(2, '0');
+        document.getElementById('secsLeft').textContent = String(secs).padStart(2, '0');
+        
+        setTimeout(updateCountdown, 1000);
+    }
+    
+    updateCountdown();
+}
+
+// ========== END OF NEW FUNCTIONS ==========
+
+
 // Load Past Questions
 async function loadPastQuestions() {
     try {
@@ -840,7 +919,7 @@ async function loadPastQuestions() {
 // Helper function to create past question item
 async function createPastQuestionItem(question) {
     const item = document.createElement('div');
-    item.className = 'past-question-item';
+    item.className = 'past-poll-card'; // Changed from 'past-question-item'
     
     const isAnswered = await hasAnsweredQuestionInDB(question.id);
     
@@ -857,51 +936,41 @@ async function createPastQuestionItem(question) {
         if (cookieData) {
             userAnswerPrediction = {
                 answer: cookieData.answer,
-                prediction: cookieData.prediction || cookieData.guess // Support both new and old cookie format
+                prediction: cookieData.prediction || cookieData.guess
             };
         }
     }
     
-    // Create choice/prediction text if available
-    // Show if user answered (either within 1-day window OR if results are unlocked)
-    let choicePredictionText = '';
-    if (userAnswerPrediction && (isAnswered || !question.canAnswer)) {
-        // Only show prediction if it exists (not null/undefined)
-        if (userAnswerPrediction.prediction) {
-            choicePredictionText = `
-                <div class="past-question-choice-guess">
-                    You chose <em>${userAnswerPrediction.answer}</em> • You predicted <em>${userAnswerPrediction.prediction}</em>
-                </div>
-            `;
-        } else {
-            // Show only answer if prediction is missing
-            choicePredictionText = `
-                <div class="past-question-choice-guess">
-                    You chose <em>${userAnswerPrediction.answer}</em>
-                </div>
-            `;
-        }
-    }
+    // Gradient classes for variety
+    const gradients = ['gradient-1', 'gradient-2', 'gradient-3', 'gradient-4'];
+    const gradientClass = gradients[Math.floor(Math.random() * gradients.length)];
     
-    // Determine status text
-    let statusText = '';
-    if (question.canAnswer) {
-        // Within 1-day window
-        if (isAnswered) {
-            statusText = '<div class="past-question-answered">✓ Answered - Results pending</div>';
-        } else {
-            statusText = '<div class="past-question-status">📝 Answer now!</div>';
-        }
+    // Use imageUrl if available
+    const imageUrl = question.imageUrl || '';
+    
+    // Determine status for CTA
+    let statusCTA = '';
+    if (question.canAnswer && !isAnswered) {
+        statusCTA = 'Answer now';
     } else {
-        // Locked (1+ days old)
-        statusText = '<div class="past-question-results">📊 View results</div>';
+        statusCTA = 'View results';
     }
     
     item.innerHTML = `
-        <div class="past-question-date">${formatDate(question.date)}</div>
-        <div class="past-question-text">${question.question}</div>
-        ${choicePredictionText}
-        ${statusText}
+        <div class="past-poll-hero ${gradientClass}" style="${imageUrl ? `background-image: url('${imageUrl}');` : ''}"></div>
+        <div class="past-poll-content">
+            <div class="past-poll-date">${formatDate(question.date)}</div>
+            <div class="past-poll-question">${question.question}</div>
+            <div class="past-poll-meta">
+                <div class="past-poll-votes"></div>
+                <div class="past-poll-cta">
+                    ${statusCTA}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
     `;
     
     item.onclick = () => loadPastQuestion(question);
@@ -1053,7 +1122,7 @@ async function createYesterdayResultsButton() {
         if (questionsWithResults.length === 0) {
             console.log('⚠️ No questions with available results yet');
             // Show placeholder - results coming soon
-            const card = document.createElement('div');
+            'past-question-card'('div');
             card.className = 'yesterday-results-card';
             card.innerHTML = `
                 <div class="yesterday-header">
