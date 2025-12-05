@@ -223,16 +223,16 @@ async function init() {
         
         // Check if question is locked (1+ days old)
         if (!todayQuestion.canAnswer) {
-        // Question is locked but results not ready yet
-        if (!todayQuestion.canViewResults) {
-            showLockedView(todayQuestion);
-            await loadPastQuestions();
-        } else {
-            // Results are ready, show them
-            await showResults(todayQuestion.id);
-            await loadPastQuestions();
+            // Question is locked but results not ready yet
+            if (!todayQuestion.canViewResults) {
+                showLockedView(todayQuestion);
+                await loadPastQuestions();
+            } else {
+                // Results are ready, show them
+                await showResults(todayQuestion.id);
+                await loadPastQuestions();
+            }
         }
-}
         // Check if user already answered today's question (check DB if logged in)
         else if (await hasAnsweredQuestionInDB(todayQuestion.id)) {
             // Skip to results (or placeholder if locked)
@@ -311,7 +311,7 @@ function selectAnswer(answer) {
 document.getElementById('submitAnswer').addEventListener('click', () => {
     if (!selectedAnswer) return;
 
-    document.getElementById('userChoiceText').textContent = selectedAnswer; //new code for v2
+    document.getElementById('userChoiceText').textContent = selectedAnswer;
     
     // Display hero image with gradient overlay in guess view
     const guessHeroImage = document.getElementById('guessHeroImage');
@@ -537,42 +537,22 @@ async function showResults(questionId, forceAnimation = false) {
             
             // Handle yesterday's results button vs login prompt
             const loginPrompt = document.getElementById('loginPrompt');
-            console.log('🔍 Login check - isLoggedIn:', isLoggedIn(), 'loginPrompt exists:', !!loginPrompt);
             
             if (loginPrompt) {
-                // Debug: Check current state of loginPrompt
-                console.log('🔍 loginPrompt current display:', window.getComputedStyle(loginPrompt).display);
-                console.log('🔍 loginPrompt current visibility:', window.getComputedStyle(loginPrompt).visibility);
-                console.log('🔍 loginPrompt offsetHeight:', loginPrompt.offsetHeight);
-                console.log('🔍 loginPrompt offsetWidth:', loginPrompt.offsetWidth);
-                
                 if (isLoggedIn()) {
                     // User IS logged in - show yesterday's results button
-                    console.log('✅ User is logged in, creating yesterday button...');
                     loginPrompt.innerHTML = ''; // Clear any existing content
                     const yesterdayButton = await createYesterdayResultsButton();
-                    console.log('📊 Yesterday button created:', !!yesterdayButton);
                     if (yesterdayButton) {
                         loginPrompt.appendChild(yesterdayButton);
                         loginPrompt.style.setProperty('display', 'block', 'important');
                         loginPrompt.style.visibility = 'visible';
                         loginPrompt.style.opacity = '1';
-                        console.log('✅ Yesterday button added to loginPrompt');
-                        
-                        // Debug: Check after adding
-                        console.log('🔍 AFTER - loginPrompt display:', window.getComputedStyle(loginPrompt).display);
-                        console.log('🔍 AFTER - loginPrompt offsetHeight:', loginPrompt.offsetHeight);
-                        console.log('🔍 AFTER - loginPrompt innerHTML length:', loginPrompt.innerHTML.length);
-                        console.log('🔍 AFTER - loginPrompt children count:', loginPrompt.children.length);
-                        console.log('🔍 AFTER - loginPrompt classList:', loginPrompt.classList.toString());
-                        console.log('🔍 AFTER - loginPrompt style.display:', loginPrompt.style.display);
                     } else {
-                        console.log('❌ No yesterday button - might be no past questions yet');
                         loginPrompt.style.display = 'none';
                     }
                 } else {
                     // User is NOT logged in - show normal signin card
-                    console.log('👤 User not logged in, showing signin card');
                     loginPrompt.innerHTML = `
                         <p>💾 Save your stats in one click</p>
                         <button onclick="document.getElementById('authButton').click()" class="btn-signin">
@@ -586,17 +566,13 @@ async function showResults(questionId, forceAnimation = false) {
             // Check if user has seen these results before
             const alreadyViewed = hasViewedResults(questionId);
             
-            console.log('🎬 Animation check - forceAnimation:', forceAnimation, 'alreadyViewed:', alreadyViewed, 'userAnswerPrediction:', !!userAnswerPrediction);
-            
             // Play animation if: forced, OR first time viewing
             if (forceAnimation || !alreadyViewed) {
                 // Show dramatic reveal animation
-                console.log('✅ Playing reveal animation');
                 await playRevealAnimation(questionId, data, userAnswerPrediction);
                 markResultsAsViewed(questionId);
             } else {
                 // Already viewed - show results instantly
-                console.log('⏩ Showing results instantly');
                 await showResultsInstantly(questionId, data);
             }
             
@@ -700,19 +676,14 @@ async function playRevealAnimation(questionId, data, userAnswerGuess) {
         resultsContainer.appendChild(resultItem);
     });
     
-    // Phase 1: Show "You chose..." at 2s (changed from 3s)
-    console.log('🎬 REVEAL DEBUG - userAnswerGuess:', userAnswerGuess);
-    
+    // Phase 1: Show "You chose..." at 2s
     if (userAnswerGuess) {
-        console.log('🎬 REVEAL DEBUG - Waiting 2s before showing "You chose"');
         await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('🎬 REVEAL DEBUG - Showing "You chose":', userAnswerGuess.answer);
         choiceLine.innerHTML = `You chose <strong>${userAnswerGuess.answer}</strong>`;
         choiceLine.style.animation = 'revealChoiceIn 420ms ease-out forwards';
         
         // Phase 1b: Show "You predicted..." after 2s
         await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('🎬 REVEAL DEBUG - Showing "You predicted":', userAnswerGuess.prediction);
         choiceLine.style.animation = 'none';
         await new Promise(resolve => setTimeout(resolve, 10)); // Force reflow
         choiceLine.innerHTML = `You predicted <strong>${userAnswerGuess.prediction}</strong>`;
@@ -721,7 +692,6 @@ async function playRevealAnimation(questionId, data, userAnswerGuess) {
         // Let "You predicted" stay for 2 seconds before fading
         await new Promise(resolve => setTimeout(resolve, 2000));
     } else {
-        console.log('🎬 REVEAL DEBUG - No userAnswerGuess data, showing generic reveal');
         // Generic reveal - just show banner, skip straight to results after 3 seconds
         await new Promise(resolve => setTimeout(resolve, 3000));
     }
@@ -741,7 +711,7 @@ async function playRevealAnimation(questionId, data, userAnswerGuess) {
     
     await new Promise(resolve => setTimeout(resolve, 200));
     
-    // Phase 3: Scramble numbers super fast for 2 seconds (changed from 3s)
+    // Phase 3: Scramble numbers super fast for 2 seconds
     const percentEls = Array.from(document.querySelectorAll('.result-percentage'));
     const scrambleStart = performance.now();
     const scrambleDuration = 2000;
@@ -756,7 +726,6 @@ async function playRevealAnimation(questionId, data, userAnswerGuess) {
             // Phase 4: Count up numbers in sync with bars
             setTimeout(async () => {
                 await animateBarsAndNumbers(sortedResults);
-                console.log('🎬 Reveal animation completed!');
                 
                 // If viewing from yesterday button, show correctness after animation
                 if (isViewingFromYesterdayButton && userAnswerGuess) {
@@ -809,10 +778,6 @@ function animateBarsAndNumbers(sortedResults) {
 function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
 }
-
-//new code for v2----------------------
-// ========== ADD THESE FUNCTIONS TO app.js ==========
-// Insert after line 800 (after showResults function)
 
 // Show Locked View with Countdown
 function showLockedView(question) {
@@ -878,49 +843,28 @@ function startCountdown(publishDate) {
     updateCountdown();
 }
 
-// ========== END OF NEW FUNCTIONS ==========
-
-
 // Load Past Questions
 async function loadPastQuestions() {
-    console.log('🔍 loadPastQuestions called!');//remove
     try {
         const response = await fetch('/api/past-questions');
         const pastQuestions = await response.json();
-        console.log('🔍 Fetched past questions:', pastQuestions.length);//remove
         
-        // Update both containers (standalone view and results view)
+        // Update container
         const listContainer = document.getElementById('pastQuestionsList');
-        const listContainerResults = document.getElementById('pastQuestionsListResults');
-
-        console.log('🔍 listContainer:', listContainer);//remove
-        console.log('🔍 listContainerResults:', listContainerResults);//remove
         
         listContainer.innerHTML = '';
-        listContainerResults.innerHTML = '';
         
         if (pastQuestions.length === 0) {
             const emptyMessage = '<p style="text-align: center; color: #999;">No past questions yet. Check back tomorrow!</p>';
             listContainer.innerHTML = emptyMessage;
-            listContainerResults.innerHTML = emptyMessage;
         } else {
-             console.log('🔍 Creating cards for', pastQuestions.length, 'questions');//remove
             // Process all questions and check answered status
             for (const question of pastQuestions) {
-                // Create item for standalone view
+                // Create item
                 const item = await createPastQuestionItem(question);
-                console.log('🔍 Created item:', item);
                 listContainer.appendChild(item);
-                
-                // Create item for results view
-                const itemResults = await createPastQuestionItem(question);
-                listContainerResults.appendChild(itemResults);
             }
-            console.log('🔍 Finished creating cards. Container children:', listContainer.children.length);
         }
-        
-        // Note: We don't show the standalone view here anymore
-        // It will only be shown when explicitly needed
         
     } catch (error) {
         console.error('Error loading past questions:', error);
@@ -930,7 +874,7 @@ async function loadPastQuestions() {
 // Helper function to create past question item
 async function createPastQuestionItem(question) {
     const item = document.createElement('div');
-    item.className = 'past-poll-card'; // Changed from 'past-question-item'
+    item.className = 'past-poll-card';
     
     const isAnswered = await hasAnsweredQuestionInDB(question.id);
     
@@ -1086,9 +1030,7 @@ async function showYesterdayCorrectness(questionId, data, userAnswerGuess) {
     const winningChoice = sortedResults[0].choice;
     const wasCorrect = userAnswerGuess.prediction === winningChoice;
     
-    console.log('🎯 Showing correctness - prediction:', userAnswerGuess.prediction, 'winner:', winningChoice, 'correct:', wasCorrect);
-    
-    // Replace yesterday card with correctness message (Option 3: Stat Card)
+    // Replace yesterday card with correctness message
     loginPrompt.innerHTML = '';
     const card = document.createElement('div');
     card.className = 'yesterday-results-card correctness-card';
@@ -1119,21 +1061,17 @@ async function showYesterdayCorrectness(questionId, data, userAnswerGuess) {
 // Create button to view yesterday's results
 async function createYesterdayResultsButton() {
     try {
-        console.log('📊 createYesterdayResultsButton: Fetching past questions...');
         // Fetch past questions
         const response = await fetch('/api/past-questions');
         const pastQuestions = await response.json();
-        console.log('📊 Past questions fetched:', pastQuestions.length, 'questions');
         
         // Filter to only questions where results are available (canAnswer = false)
         const questionsWithResults = pastQuestions.filter(q => !q.canAnswer);
-        console.log('📊 Questions with available results:', questionsWithResults.length);
         
         // Get the most recent question with available results
         if (questionsWithResults.length === 0) {
-            console.log('⚠️ No questions with available results yet');
             // Show placeholder - results coming soon
-            'past-question-card'('div');
+            const card = document.createElement('div');
             card.className = 'yesterday-results-card';
             card.innerHTML = `
                 <div class="yesterday-header">
@@ -1147,7 +1085,6 @@ async function createYesterdayResultsButton() {
         }
         
         const yesterdayQuestion = questionsWithResults[0];
-        console.log('✅ Creating yesterday button for:', yesterdayQuestion.question, 'date:', yesterdayQuestion.date);
         
         // Create the button card with clickable button
         const card = document.createElement('div');
@@ -1169,8 +1106,6 @@ async function createYesterdayResultsButton() {
         
         // Add click handler
         card.querySelector('#viewYesterdayBtn').addEventListener('click', async () => {
-            console.log('🎬 Yesterday button clicked - forcing animation');
-            
             // Immediately hide this card and show "loading" message
             const loginPrompt = document.getElementById('loginPrompt');
             if (loginPrompt) {
@@ -1195,7 +1130,7 @@ async function createYesterdayResultsButton() {
         
         return card;
     } catch (error) {
-        console.error('❌ Error creating yesterday button:', error);
+        console.error('Error creating yesterday button:', error);
         return null;
     }
 }
