@@ -1,3 +1,4 @@
+/* First, get the base styles */
 /* ========================================
    BASE STYLES & RESET
    ======================================== */
@@ -977,3 +978,77 @@ body {
     margin-top: 20px;
     text-align: center;
 }
+/* ========================================
+   SUBMIT BUTTON WIDTH FIX
+   Add this to END of styles.css
+   ======================================== */
+
+/* The issue: choices-container has 24px padding left/right,
+   but submit button is outside that container and spans full card width */
+
+/* SOLUTION: Add same padding to submit button to match choices */
+.btn-primary {
+    width: calc(100% - 48px); /* 100% minus 24px padding on each side */
+    margin-left: 24px;
+    margin-right: 24px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+}
+
+/* Active state - full gradient */
+.btn-primary:not(:disabled) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Disabled state - gray */
+.btn-primary:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* For prediction view - use pink gradient */
+#guessView .btn-primary:not(:disabled) {
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+#guessView .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #db2777 0%, #9333ea 100%);
+    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+}
+
+/* ========================================
+   EXPLANATION:
+   ======================================== */
+
+/*
+The problem was:
+- .choices-container has padding-left: 24px and padding-right: 24px
+- This makes choice buttons inset by 24px on each side
+- Submit button is OUTSIDE .choices-container
+- Submit button was using width: 100% which spans the full card width
+- This made it 48px wider than the choice buttons (24px + 24px)
+
+The solution:
+- width: calc(100% - 48px) - subtract the 48px total padding
+- margin-left: 24px - match the left padding
+- margin-right: 24px - match the right padding
+- Now submit button is EXACTLY the same width as choice buttons!
+*/
