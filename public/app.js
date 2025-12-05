@@ -790,6 +790,28 @@ function showLockedView(question) {
         lockedHeroImage.style.display = 'none';
     }
     
+    // Show what user chose and predicted
+    const lockedSubtitle = document.getElementById('lockedSubtitle');
+    const guessData = getGuessData();
+    const userAnswerPrediction = guessData[question.id];
+    
+    if (lockedSubtitle && userAnswerPrediction) {
+        if (userAnswerPrediction.prediction) {
+            lockedSubtitle.innerHTML = `
+                <div>You chose <strong>${userAnswerPrediction.answer}</strong></div>
+                <div>You predicted <strong>${userAnswerPrediction.prediction}</strong></div>
+            `;
+        } else {
+            lockedSubtitle.innerHTML = `<div>You chose <strong>${userAnswerPrediction.answer}</strong></div>`;
+        }
+        lockedSubtitle.style.display = 'block';
+    } else if (lockedSubtitle) {
+        lockedSubtitle.style.display = 'none';
+    }
+    
+    // Hide loading screen
+    document.getElementById('loadingScreen').classList.add('hidden');
+    
     // Hide loading screen
     document.getElementById('loadingScreen').classList.add('hidden');
     
