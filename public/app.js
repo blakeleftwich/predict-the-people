@@ -849,18 +849,21 @@ async function loadPastQuestions() {
         const response = await fetch('/api/past-questions');
         const pastQuestions = await response.json();
         
-        // Update both containers (Prediction screen and Locked screen)
+        // Update ALL three containers (Prediction, Locked, and Results screens)
         const listContainer = document.getElementById('pastQuestionsList');
         const listContainerLocked = document.getElementById('pastQuestionsListLocked');
+        const listContainerResults = document.getElementById('pastQuestionsListResults');
         
-        // Clear both
+        // Clear all
         if (listContainer) listContainer.innerHTML = '';
         if (listContainerLocked) listContainerLocked.innerHTML = '';
+        if (listContainerResults) listContainerResults.innerHTML = '';
         
         if (pastQuestions.length === 0) {
             const emptyMessage = '<p style="text-align: center; color: #999;">No past questions yet. Check back tomorrow!</p>';
             if (listContainer) listContainer.innerHTML = emptyMessage;
             if (listContainerLocked) listContainerLocked.innerHTML = emptyMessage;
+            if (listContainerResults) listContainerResults.innerHTML = emptyMessage;
         } else {
             // Process all questions and check answered status
             for (const question of pastQuestions) {
@@ -874,6 +877,12 @@ async function loadPastQuestions() {
                 if (listContainerLocked) {
                     const itemLocked = await createPastQuestionItem(question);
                     listContainerLocked.appendChild(itemLocked);
+                }
+                
+                // Create item for Results screen - NEW
+                if (listContainerResults) {
+                    const itemResults = await createPastQuestionItem(question);
+                    listContainerResults.appendChild(itemResults);
                 }
             }
         }
@@ -915,26 +924,27 @@ async function createPastQuestionItem(question) {
     // Use imageUrl if available
     const imageUrl = question.imageUrl || '';
     
-    // Determine status for CTA
-    let statusCTA = '';
+    // Determine status badge - NEW FORMAT
+    let statusBadge = '';
+    let statusClass = '';
     if (question.canAnswer && !isAnswered) {
-        statusCTA = 'Answer now';
+        // Can still answer
+        statusBadge = '→ Make Prediction';
+        statusClass = 'unanswered';
     } else {
-        statusCTA = 'View results';
+        // Already answered or results available
+        statusBadge = '✓ Predicted';
+        statusClass = 'answered';
     }
     
     item.innerHTML = `
         <div class="past-poll-hero ${gradientClass}" style="${imageUrl ? `background-image: url('${imageUrl}');` : ''}"></div>
         <div class="past-poll-content">
-            <div class="past-poll-date">${formatDate(question.date)}</div>
             <div class="past-poll-question">${question.question}</div>
             <div class="past-poll-meta">
                 <div class="past-poll-votes"></div>
-                <div class="past-poll-cta">
-                    ${statusCTA}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
+                <div class="past-poll-status ${statusClass}">
+                    ${statusBadge}
                 </div>
             </div>
         </div>
