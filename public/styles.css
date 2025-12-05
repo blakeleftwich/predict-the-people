@@ -1103,3 +1103,32 @@ LOCKED CARD:
 - Spacing: proper margins and padding throughout
 - "Results will be available tomorrow" - smaller font, proper spacing
 */
+/* LOCKED CARD FIXES */
+#lockedQuestion {
+    margin-top: 24px !important;
+}
+
+#lockedSubtitle {
+    line-height: 1.4 !important;
+    margin-bottom: 20px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+#lockedSubtitle div {
+    margin-bottom: 4px !important;
+}
+
+.countdown-container {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+    border: 2px dashed #bfdbfe !important;
+    text-align: center !important;
+}
+
+.countdown-container > p {
+    text-align: center !important;
+}
+
+.thanks-large {
+    text-align: center !important;
+}
