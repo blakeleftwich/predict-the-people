@@ -753,3 +753,136 @@ body {
         font-size: 0.7rem;
     }
 }
+/* ========================================
+   QUESTION & PREDICTION PAGE FIXES
+   Add these to the END of styles.css
+   ======================================== */
+
+/* ===== BADGE ALIGNMENT & SPACING ===== */
+.poll-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    padding: 4px 10px; /* Smaller padding - closer to text */
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    margin-top: 20px; /* More space from image above */
+    margin-left: 0; /* Align with text below */
+}
+
+.prediction-badge {
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+    color: #9f1239;
+}
+
+/* Remove the padding from card content for badge alignment */
+.question-card > .poll-badge {
+    margin-left: 24px; /* Match the padding of other content */
+}
+
+/* ===== CHOICE BUTTONS ===== */
+.choice-button {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-weight: 700; /* Bold text */
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center; /* Center text */
+    width: 100%;
+}
+
+/* Hover effect - raise up */
+.choice-button:hover {
+    border-color: #667eea;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+/* Selected state - gradient background, white text */
+.choice-button.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* For prediction view - use pink gradient when selected */
+#guessView .choice-button.selected {
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    border-color: #ec4899;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.btn-primary {
+    width: 100%; /* Same width as choice buttons */
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%); /* Dimmed gradient */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+}
+
+/* Active state - full gradient */
+.btn-primary:not(:disabled) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Disabled state - gray */
+.btn-primary:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* For prediction view - use pink gradient */
+#guessView .btn-primary:not(:disabled) {
+    background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+#guessView .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #db2777 0%, #9333ea 100%);
+    box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+}
+
+/* ===== CHOICES CONTAINER ===== */
+.choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+/* ===== ENSURE PROPER SPACING ===== */
+.poll-hero-image {
+    margin-bottom: 0; /* No margin below image */
+}
+
+.poll-description {
+    margin-top: 0; /* No extra margin above description */
+}
