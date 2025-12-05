@@ -108,39 +108,38 @@
                 <div id="lockedHeroImage" class="poll-hero-image"></div>
                 
                 <h2 id="lockedQuestion" class="poll-question">Question locked</h2>
-                <p class="locked-subtitle">Thanks for voting! Come back to see the results.</p>
                 
-                <!-- Countdown Timer -->
+                <!-- Countdown Timer Container with dashed border -->
                 <div class="countdown-container">
-                    <div class="countdown-label">Results ready</div>
-                    <div class="countdown-label-sub">tomorrow</div>
+                    <div class="thanks-large">Thanks for voting!</div>
+                    <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 24px;">Results will be available tomorrow</p>
+                    
                     <div class="countdown-timer">
                         <div class="countdown-unit">
                             <div class="countdown-number" id="hoursLeft">--</div>
                             <div class="countdown-label-small">HOURS</div>
                         </div>
-                        <div class="countdown-separator">:</div>
                         <div class="countdown-unit">
                             <div class="countdown-number" id="minsLeft">--</div>
                             <div class="countdown-label-small">MINS</div>
                         </div>
-                        <div class="countdown-separator">:</div>
                         <div class="countdown-unit">
                             <div class="countdown-number" id="secsLeft">--</div>
                             <div class="countdown-label-small">SECS</div>
                         </div>
                     </div>
+                    
                     <div class="live-indicator">
                         <span class="live-dot"></span>
                         Live votes counting
                     </div>
                 </div>
-                
-                <!-- Sign in prompt -->
-                <div class="signin-card">
-                    <p>💾 Save your stats in one click</p>
-                    <button class="signin-btn" id="lockedSignInBtn">Sign in</button>
-                </div>
+            </div>
+            
+            <!-- Sign in card - SEPARATE card -->
+            <div class="signin-card">
+                <p>💾 Save your stats in one click</p>
+                <button class="signin-btn" id="lockedSignInBtn">Sign in</button>
             </div>
             
             <!-- Past Polls Section -->
@@ -157,24 +156,24 @@
         <div id="resultsView" class="view hidden">
             <div class="question-card">
                 <h2 id="resultsQuestion" class="poll-question">Results</h2>
-                <div class="results-subtitle" id="resultsSubtitle"></div>
                 
-                <!-- Results Subcard with Dashed Border -->
-                <div class="results-subcard">
-                    <!-- Intro Stage for Reveal Animation -->
-                    <div id="revealIntroStage" class="reveal-intro-stage hidden">
-                        <div class="reveal-banner">The results are in!</div>
-                        <div class="reveal-choice-line" id="revealChoiceLine"></div>
-                    </div>
-                    
-                    <div id="resultsContainer" class="results-container"></div>
+                <!-- Subtitle - separate lines, left-aligned -->
+                <div id="resultsSubtitle" class="results-subtitle"></div>
+                
+                <!-- Intro Stage for Reveal Animation -->
+                <div id="revealIntroStage" class="reveal-intro-stage hidden">
+                    <div class="reveal-banner">The results are in!</div>
+                    <div class="reveal-choice-line" id="revealChoiceLine"></div>
                 </div>
                 
-                <!-- Login Prompt (shown if not logged in) -->
-                <div id="loginPrompt" class="signin-card" style="display: none;">
-                    <p>💾 Save your stats in one click</p>
-                    <button class="signin-btn" id="resultsSignInBtn">Sign in</button>
-                </div>
+                <!-- Results Container -->
+                <div id="resultsContainer" class="results-container"></div>
+            </div>
+            
+            <!-- Login Prompt - SEPARATE card -->
+            <div id="loginPrompt" class="signin-card" style="display: none;">
+                <p>💾 Save your stats in one click</p>
+                <button class="signin-btn" onclick="document.getElementById('authButton').click()">Sign in</button>
             </div>
             
             <!-- Past Polls Section -->
