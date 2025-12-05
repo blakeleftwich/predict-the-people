@@ -844,13 +844,11 @@ async function loadPastQuestions() {
         const response = await fetch('/api/past-questions');
         const pastQuestions = await response.json();
         
-        // Update ALL three containers (Prediction, Locked, and Results screens)
-        const listContainer = document.getElementById('pastQuestionsList');
+        // Update ONLY Locked and Results screens (NOT Prediction)
         const listContainerLocked = document.getElementById('pastQuestionsListLocked');
         const listContainerResults = document.getElementById('pastQuestionsListResults');
         
-        // Clear all
-        if (listContainer) listContainer.innerHTML = '';
+        // Clear both
         if (listContainerLocked) listContainerLocked.innerHTML = '';
         if (listContainerResults) listContainerResults.innerHTML = '';
         
@@ -862,11 +860,6 @@ async function loadPastQuestions() {
         } else {
             // Process all questions and check answered status
             for (const question of pastQuestions) {
-                // Create item for Prediction screen
-                if (listContainer) {
-                    const item = await createPastQuestionItem(question);
-                    listContainer.appendChild(item);
-                }
                 
                 // Create item for Locked screen
                 if (listContainerLocked) {
