@@ -48,12 +48,26 @@
 
     <div class="container">
 
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="question-card">
+                <div class="poll-hero-image-placeholder"></div>
+                <div class="loading-text">Loading...</div>
+            </div>
+        </div>
+
         <!-- Today's Question View -->
-        <div id="questionView" class="view">
+        <div id="questionView" class="view hidden">
             <div class="question-card">
                 <div id="questionHeroImage" class="poll-hero-image"></div>
-                <div class="card-date" id="questionDate"></div>
-                <h2 id="questionText">Loading...</h2>
+                
+                <!-- Badge -->
+                <div class="poll-badge">POLL OF THE DAY</div>
+                
+                <!-- Description Text -->
+                <p class="poll-description">Cast your vote on today's featured question and see how your choice compares with the rest of the world.</p>
+                
+                <h2 id="questionText" class="poll-question">Loading...</h2>
                 <div id="choicesContainer" class="choices-container"></div>
                 <button id="submitAnswer" class="btn-primary hidden" disabled>Submit Answer</button>
             </div>
@@ -63,10 +77,64 @@
         <div id="guessView" class="view hidden">
             <div class="question-card">
                 <div id="guessHeroImage" class="poll-hero-image"></div>
-                <h2 id="guessViewHeading">What do you think most people answered?</h2>
-                <p class="subtitle" id="guessSubtitle"></p>
+                
+                <!-- Badge -->
+                <div class="poll-badge prediction-badge">PREDICTION OF THE DAY</div>
+                
+                <!-- Description Text -->
+                <p class="poll-description">Can you predict what the people will vote? Get it right and you'll boost your win percentage stats and overall score!</p>
+                
+                <h2 id="guessViewHeading" class="poll-question">Which will be most popular?</h2>
+                <p class="choice-indicator" id="guessSubtitle">You chose <span id="userChoiceText" class="user-choice-highlight"></span></p>
                 <div id="guessChoicesContainer" class="choices-container"></div>
                 <button id="submitGuess" class="btn-primary" disabled>Submit Prediction</button>
+            </div>
+        </div>
+
+        <!-- Locked/Countdown View -->
+        <div id="lockedView" class="view hidden">
+            <div class="question-card">
+                <div id="lockedHeroImage" class="poll-hero-image"></div>
+                
+                <h2 id="lockedQuestion" class="poll-question">Question locked</h2>
+                <p class="locked-subtitle">Thanks for voting! Come back to see the results.</p>
+                
+                <!-- Countdown Timer -->
+                <div class="countdown-container">
+                    <div class="countdown-label">Results ready</div>
+                    <div class="countdown-label-sub">tomorrow</div>
+                    <div class="countdown-timer">
+                        <div class="countdown-unit">
+                            <div class="countdown-number" id="hoursLeft">--</div>
+                            <div class="countdown-label-small">HOURS</div>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-unit">
+                            <div class="countdown-number" id="minsLeft">--</div>
+                            <div class="countdown-label-small">MINS</div>
+                        </div>
+                        <div class="countdown-separator">:</div>
+                        <div class="countdown-unit">
+                            <div class="countdown-number" id="secsLeft">--</div>
+                            <div class="countdown-label-small">SECS</div>
+                        </div>
+                    </div>
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        Live votes counting
+                    </div>
+                </div>
+                
+                <!-- Sign in prompt -->
+                <div class="signin-card">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="signin-icon">
+                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="#667eea" stroke-width="2"/>
+                        <polyline points="17 21 17 13 7 13 7 21" stroke="#667eea" stroke-width="2"/>
+                        <polyline points="7 3 7 8 15 8" stroke="#667eea" stroke-width="2"/>
+                    </svg>
+                    <p class="signin-text">Save your stats in one click</p>
+                    <button class="signin-btn" id="lockedSignInBtn">Sign in</button>
+                </div>
             </div>
         </div>
 
@@ -84,7 +152,7 @@
                         Share
                     </button>
                 </div>
-                <h2 id="resultsQuestion">Results</h2>
+                <h2 id="resultsQuestion" class="poll-question">Results</h2>
                 <p class="results-subtitle" id="resultsSubtitle"></p>
                 
                 <!-- Results Subcard with Dashed Border -->
@@ -98,52 +166,50 @@
                     <div id="resultsContainer" class="results-container"></div>
                 </div>
                 
-                <!-- Login prompt for non-authenticated users (shows yesterday results for logged in) -->
-                <div id="loginPrompt" class="login-prompt">
-                    <p>💾 Save your stats in one click</p>
-                    <button onclick="document.getElementById('authButton').click()" class="btn-signin">
-                        Sign in
-                    </button>
+                <!-- Login Prompt (shown if not logged in) -->
+                <div id="loginPrompt" class="signin-card" style="display: none;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="signin-icon">
+                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="#667eea" stroke-width="2"/>
+                        <polyline points="17 21 17 13 7 13 7 21" stroke="#667eea" stroke-width="2"/>
+                        <polyline points="7 3 7 8 15 8" stroke="#667eea" stroke-width="2"/>
+                    </svg>
+                    <p class="signin-text">Save your stats in one click</p>
+                    <button class="signin-btn" id="resultsSignInBtn">Sign in</button>
                 </div>
-            </div>
-            
-            <!-- Past Questions on Results Screen -->
-            <div class="past-questions-section">
-                <h2>📅 Past Questions</h2>
-                <p class="subtitle">Answer any questions you may have missed!</p>
-                <div id="pastQuestionsListResults" class="past-questions-list"></div>
             </div>
         </div>
 
-        <!-- Past Questions View -->
-        <div id="pastQuestionsView" class="view hidden">
-            <div class="past-questions-section">
-                <h2>📅 Past Questions</h2>
-                <p class="subtitle">Answer any questions you may have missed!</p>
-                <div id="pastQuestionsList" class="past-questions-list"></div>
+        <!-- Past Questions Section -->
+        <div id="pastQuestionsSection" class="past-questions-section">
+            <div class="past-questions-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="past-icon">
+                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="#667eea" stroke-width="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6" stroke="#667eea" stroke-width="2"/>
+                    <line x1="8" y1="2" x2="8" y2="6" stroke="#667eea" stroke-width="2"/>
+                    <line x1="3" y1="10" x2="21" y2="10" stroke="#667eea" stroke-width="2"/>
+                </svg>
+                <h3 class="past-questions-title">Past Questions</h3>
             </div>
+            <p class="past-questions-subtitle">Answer any questions you may have missed!</p>
+            <div id="pastQuestionsList" class="past-questions-list"></div>
         </div>
+
     </div>
 
     <!-- Login Modal -->
     <div id="loginModal" class="modal hidden">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>🔐 Sign In</h2>
-                <button id="closeLoginModal" class="close-modal">&times;</button>
-            </div>
-            <p class="modal-description">Enter your email to receive a magic link. No password needed!</p>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Email Address</label>
-                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
-                </div>
-                <button type="submit" class="btn-primary">Send Magic Link</button>
-                <div id="loginError" class="error-message hidden"></div>
-                <div id="loginSuccess" class="success-message hidden">
-                    ✅ Magic link sent! Check your email and click the link to sign in.
-                </div>
-            </form>
+            <button class="modal-close" id="closeLoginModal">&times;</button>
+            <div id="loginFormContainer"></div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal hidden">
+        <div class="modal-content share-modal-content">
+            <button class="modal-close" id="closeShareModal">&times;</button>
+            <h3 style="margin-bottom: 20px; color: #667eea;">Share Your Result</h3>
+            <div id="shareContent"></div>
         </div>
     </div>
 
