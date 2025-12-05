@@ -883,13 +883,18 @@ function startCountdown(publishDate) {
 
 // Load Past Questions
 async function loadPastQuestions() {
+    console.log('🔍 loadPastQuestions called!');//remove
     try {
         const response = await fetch('/api/past-questions');
         const pastQuestions = await response.json();
+        console.log('🔍 Fetched past questions:', pastQuestions.length);//remove
         
         // Update both containers (standalone view and results view)
         const listContainer = document.getElementById('pastQuestionsList');
         const listContainerResults = document.getElementById('pastQuestionsListResults');
+
+        console.log('🔍 listContainer:', listContainer);//remove
+        console.log('🔍 listContainerResults:', listContainerResults);//remove
         
         listContainer.innerHTML = '';
         listContainerResults.innerHTML = '';
@@ -899,16 +904,19 @@ async function loadPastQuestions() {
             listContainer.innerHTML = emptyMessage;
             listContainerResults.innerHTML = emptyMessage;
         } else {
+             console.log('🔍 Creating cards for', pastQuestions.length, 'questions');//remove
             // Process all questions and check answered status
             for (const question of pastQuestions) {
                 // Create item for standalone view
                 const item = await createPastQuestionItem(question);
+                console.log('🔍 Created item:', item);
                 listContainer.appendChild(item);
                 
                 // Create item for results view
                 const itemResults = await createPastQuestionItem(question);
                 listContainerResults.appendChild(itemResults);
             }
+            console.log('🔍 Finished creating cards. Container children:', listContainer.children.length);
         }
         
         // Note: We don't show the standalone view here anymore
