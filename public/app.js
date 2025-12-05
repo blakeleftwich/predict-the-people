@@ -849,20 +849,32 @@ async function loadPastQuestions() {
         const response = await fetch('/api/past-questions');
         const pastQuestions = await response.json();
         
-        // Update container
+        // Update both containers (Prediction screen and Locked screen)
         const listContainer = document.getElementById('pastQuestionsList');
+        const listContainerLocked = document.getElementById('pastQuestionsListLocked');
         
-        listContainer.innerHTML = '';
+        // Clear both
+        if (listContainer) listContainer.innerHTML = '';
+        if (listContainerLocked) listContainerLocked.innerHTML = '';
         
         if (pastQuestions.length === 0) {
             const emptyMessage = '<p style="text-align: center; color: #999;">No past questions yet. Check back tomorrow!</p>';
-            listContainer.innerHTML = emptyMessage;
+            if (listContainer) listContainer.innerHTML = emptyMessage;
+            if (listContainerLocked) listContainerLocked.innerHTML = emptyMessage;
         } else {
             // Process all questions and check answered status
             for (const question of pastQuestions) {
-                // Create item
-                const item = await createPastQuestionItem(question);
-                listContainer.appendChild(item);
+                // Create item for Prediction screen
+                if (listContainer) {
+                    const item = await createPastQuestionItem(question);
+                    listContainer.appendChild(item);
+                }
+                
+                // Create item for Locked screen
+                if (listContainerLocked) {
+                    const itemLocked = await createPastQuestionItem(question);
+                    listContainerLocked.appendChild(itemLocked);
+                }
             }
         }
         
