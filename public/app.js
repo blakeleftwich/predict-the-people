@@ -332,8 +332,8 @@ document.getElementById('submitAnswer').addEventListener('click', () => {
     }
     
     // Show guess view with styled subtitle
-    const guessSubtitle = document.getElementById('guessSubtitle');
-    guessSubtitle.innerHTML = `You chose <em>${selectedAnswer}</em>`;
+const guessSubtitle = document.getElementById('guessSubtitle');
+guessSubtitle.innerHTML = `You chose <span id="userChoiceText">${selectedAnswer}</span>`;
     
     const guessContainer = document.getElementById('guessChoicesContainer');
     guessContainer.innerHTML = '';
