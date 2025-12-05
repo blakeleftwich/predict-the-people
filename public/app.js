@@ -475,12 +475,15 @@ async function showResults(questionId, forceAnimation = false) {
         
         if (subtitleElement) {
             if (userAnswerPrediction) {
-                // Only show prediction if it exists (not null/undefined)
+                // Show on separate lines, left-aligned
                 if (userAnswerPrediction.prediction) {
-                    subtitleElement.innerHTML = `You chose <em>${userAnswerPrediction.answer}</em> • You predicted <em>${userAnswerPrediction.prediction}</em>`;
+                    subtitleElement.innerHTML = `
+                        <div>You chose <strong>${userAnswerPrediction.answer}</strong></div>
+                        <div>You predicted <strong>${userAnswerPrediction.prediction}</strong></div>
+                    `;
                 } else {
                     // Show only answer if prediction is missing
-                    subtitleElement.innerHTML = `You chose <em>${userAnswerPrediction.answer}</em>`;
+                    subtitleElement.innerHTML = `<div>You chose <strong>${userAnswerPrediction.answer}</strong></div>`;
                 }
                 subtitleElement.style.display = 'block';
             } else {
@@ -498,25 +501,17 @@ async function showResults(questionId, forceAnimation = false) {
             placeholder.className = 'results-placeholder';
             placeholder.innerHTML = `
                 <div class="thanks-large">Thanks for voting!</div>
-                <div class="unlock-pill">
-                    <svg class="pill-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    <span>Results ready tomorrow</span>
-                </div>
+                <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 24px;">Results will be available tomorrow</p>
                 
                 <div class="locked-countdown">
                     <div class="countdown-box">
                         <div class="countdown-number" id="lockedHours">--</div>
                         <div class="countdown-label-small">HOURS</div>
                     </div>
-                    <div class="countdown-separator">:</div>
                     <div class="countdown-box">
                         <div class="countdown-number" id="lockedMinutes">--</div>
                         <div class="countdown-label-small">MINS</div>
                     </div>
-                    <div class="countdown-separator">:</div>
                     <div class="countdown-box">
                         <div class="countdown-number" id="lockedSeconds">--</div>
                         <div class="countdown-label-small">SECS</div>
