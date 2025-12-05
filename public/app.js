@@ -930,7 +930,7 @@ async function createPastQuestionItem(question) {
         <div class="past-poll-content">
             <div class="past-poll-question">${question.question}</div>
             <div class="past-poll-meta">
-                <div class="past-poll-votes"></div>
+                <div class="past-poll-votes">${question.totalVotes || 0} votes</div>
                 <div class="past-poll-status ${statusClass}">
                     ${statusBadge}
                 </div>
