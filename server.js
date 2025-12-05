@@ -5,7 +5,7 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Supabase setup
 const supabaseUrl = process.env.SUPABASE_URL || 'https://rpthyjmtuczuuxgwoiqj.supabase.co';
@@ -31,82 +31,6 @@ app.get('/favicon.ico', (req, res) => {
   res.redirect(301, '/favicon.svg');
 });
 
-// Data file paths
-const QUESTIONS_FILE = path.join(__dirname, 'data', 'questions.json');
-const VOTES_FILE = path.join(__dirname, 'data', 'votes.json');
-const CONFIG_FILE = path.join(__dirname, 'config.json');
-
-// Read config
-function readConfig() {
-  try {
-    return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-  } catch (error) {
-    // Create default config if it doesn't exist
-    const defaultConfig = { adminPassword: 'admin123' };
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig, null, 2));
-    return defaultConfig;
-  }
-}
-
-// Admin authentication middleware
-function checkAdminAuth(req, res, next) {
-  const config = readConfig();
-  const providedPassword = req.headers['x-admin-password'] || req.body.password;
-  
-  if (providedPassword === config.adminPassword) {
-    next();
-  } else {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-}
-
-// Initialize data files if they don't exist
-function initializeData() {
-  if (!fs.existsSync('./data')) {
-    fs.mkdirSync('./data');
-  }
-  
-  if (!fs.existsSync(QUESTIONS_FILE)) {
-    const initialQuestions = [
-      {
-        id: "q1",
-        date: getTodayDate(),
-        question: "Are you a morning person or a night owl?",
-        choices: ["Morning Person", "Night Owl"]
-      },
-      {
-        id: "q2",
-        date: getDateOffset(-1),
-        question: "Which do you prefer?",
-        choices: ["Coffee", "Tea", "Neither"]
-      },
-      {
-        id: "q3",
-        date: getDateOffset(-2),
-        question: "What's your favorite season?",
-        choices: ["Spring", "Summer", "Fall", "Winter"]
-      },
-      {
-        id: "q4",
-        date: getDateOffset(-3),
-        question: "Do you prefer cats or dogs?",
-        choices: ["Cats", "Dogs", "Both!", "Neither"]
-      },
-      {
-        id: "q5",
-        date: getDateOffset(-4),
-        question: "Pizza or Burgers?",
-        choices: ["Pizza", "Burgers"]
-      }
-    ];
-    fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(initialQuestions, null, 2));
-  }
-  
-  if (!fs.existsSync(VOTES_FILE)) {
-    fs.writeFileSync(VOTES_FILE, JSON.stringify({}, null, 2));
-  }
-}
-
 // Helper functions
 function getTodayDate() {
   // Use Eastern Time (America/New_York) instead of UTC
@@ -123,18 +47,6 @@ function getDateOffset(days) {
   const easternDate = new Date(easternDateStr + 'T00:00:00');
   easternDate.setDate(easternDate.getDate() + days);
   return easternDate.toISOString().split('T')[0];
-}
-
-function readQuestions() {
-  return JSON.parse(fs.readFileSync(QUESTIONS_FILE, 'utf8'));
-}
-
-function readVotes() {
-  return JSON.parse(fs.readFileSync(VOTES_FILE, 'utf8'));
-}
-
-function writeVotes(votes) {
-  fs.writeFileSync(VOTES_FILE, JSON.stringify(votes, null, 2));
 }
 
 // Calculate days since question publication
@@ -158,6 +70,18 @@ function getQuestionStatus(question) {
     canViewResults: daysSince >= 1,
     daysUntilResults: daysSince >= 1 ? 0 : 1 - daysSince
   };
+}
+
+// Check if within answer period (same day as question)
+function isWithinAnswerPeriod(questionDate) {
+  const today = getTodayDate();
+  return questionDate === today;
+}
+
+// Check if after unlock time (next day)
+function isAfterUnlockTime(questionDate) {
+  const daysSince = getDaysSincePublication(questionDate);
+  return daysSince >= 1;
 }
 
 // API Routes
@@ -229,32 +153,42 @@ app.get('/api/question/:id', async (req, res) => {
   }
 });
 
-// Get last 5 questions
+// Get past questions
 app.get('/api/past-questions', async (req, res) => {
     try {
+        const today = getTodayDate();
+        
         const { data, error } = await supabase
-            .from('questions')
+            .from('poll_questions')
             .select('*')
-            .lt('date', currentDate)
-            .order('date', { ascending: false })
+            .lt('published_at', today)
+            .order('published_at', { ascending: false })
             .limit(10);
         
         if (error) throw error;
         
         // Get vote counts for each question
-        const questionsWithStatus = await Promise.all(data.map(async (q) => {
+        const questionsWithStatus = await Promise.all((data || []).map(async (q) => {
             // Count total votes for this question
             const { count, error: countError } = await supabase
-                .from('votes')
+                .from('poll_answers')
                 .select('*', { count: 'exact', head: true })
                 .eq('question_id', q.id);
             
-            return {
-                ...q,
-                canAnswer: isWithinAnswerPeriod(q.date),
-                canViewResults: isAfterUnlockTime(q.date),
+            // Convert to app format
+            const question = {
+                id: q.id,
+                date: q.published_at,
+                question: q.question_text,
+                choices: q.options,
                 imageUrl: q.image_url || DEFAULT_IMAGES.question,
                 totalVotes: count || 0
+            };
+            
+            return {
+                ...question,
+                canAnswer: isWithinAnswerPeriod(question.date),
+                canViewResults: isAfterUnlockTime(question.date)
             };
         }));
         
@@ -375,7 +309,8 @@ app.get('/api/results/:id', async (req, res) => {
       const percentage = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
       return {
         choice,
-        percentage
+        percentage,
+        votes: count
       };
     });
     
@@ -399,174 +334,12 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// Verify admin password
-app.post('/api/admin/verify', (req, res) => {
-  const config = readConfig();
-  const { password } = req.body;
-  
-  if (password === config.adminPassword) {
-    res.json({ success: true });
-  } else {
-    res.status(401).json({ success: false, error: 'Invalid password' });
-  }
-});
-
-// Get all questions (admin)
-app.get('/api/admin/questions', checkAdminAuth, async (req, res) => {
-  try {
-    const today = getTodayDate();
-    
-    // Fetch all questions from Supabase
-    const { data, error } = await supabase
-      .from('poll_questions')
-      .select('*')
-      .order('published_at', { ascending: false });
-    
-    if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).json({ error: 'Failed to fetch questions' });
-    }
-    
-    // Convert and add status to each question
-    const questionsWithStatus = (data || []).map(q => {
-      const question = {
-        id: q.id,
-        date: q.published_at,
-        question: q.question_text,
-        choices: q.options,
-        imageUrl: q.image_url || null // Include image_url
-      };
-      
-      const status = getQuestionStatus(question);
-      const isToday = question.date === today;
-      const isFuture = question.date > today;
-      const isPast = question.date < today;
-      
-      return {
-        ...status,
-        isToday,
-        isFuture,
-        isPast
-      };
-    });
-    
-    res.json(questionsWithStatus);
-  } catch (error) {
-    console.error('Error fetching admin questions:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Add new question (admin)
-app.post('/api/admin/questions', checkAdminAuth, (req, res) => {
-  const { date, question, choices } = req.body;
-  
-  if (!date || !question || !choices || !Array.isArray(choices) || choices.length < 2 || choices.length > 4) {
-    return res.status(400).json({ 
-      error: 'Invalid input',
-      message: 'Must provide date, question, and 2-4 choices'
-    });
-  }
-  
-  const questions = readQuestions();
-  
-  // Check if question already exists for this date
-  if (questions.some(q => q.date === date)) {
-    return res.status(400).json({ 
-      error: 'Date conflict',
-      message: 'A question already exists for this date'
-    });
-  }
-  
-  // Generate new ID
-  const maxId = questions.reduce((max, q) => {
-    const num = parseInt(q.id.replace('q', ''));
-    return num > max ? num : max;
-  }, 0);
-  const newId = `q${maxId + 1}`;
-  
-  // Add new question
-  questions.push({
-    id: newId,
-    date,
-    question,
-    choices
-  });
-  
-  fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(questions, null, 2));
-  
-  res.json({ success: true, id: newId });
-});
-
-// Update question (admin)
-app.put('/api/admin/questions/:id', checkAdminAuth, (req, res) => {
-  const { id } = req.params;
-  const { date, question, choices } = req.body;
-  
-  if (!date || !question || !choices || !Array.isArray(choices) || choices.length < 2 || choices.length > 4) {
-    return res.status(400).json({ 
-      error: 'Invalid input',
-      message: 'Must provide date, question, and 2-4 choices'
-    });
-  }
-  
-  const questions = readQuestions();
-  const index = questions.findIndex(q => q.id === id);
-  
-  if (index === -1) {
-    return res.status(404).json({ error: 'Question not found' });
-  }
-  
-  // Check if new date conflicts with another question
-  if (questions.some(q => q.id !== id && q.date === date)) {
-    return res.status(400).json({ 
-      error: 'Date conflict',
-      message: 'Another question already exists for this date'
-    });
-  }
-  
-  // Update question
-  questions[index] = {
-    id,
-    date,
-    question,
-    choices
-  };
-  
-  fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(questions, null, 2));
-  
-  res.json({ success: true });
-});
-
-// Delete question (admin)
-app.delete('/api/admin/questions/:id', checkAdminAuth, (req, res) => {
-  const { id } = req.params;
-  
-  const questions = readQuestions();
-  const filteredQuestions = questions.filter(q => q.id !== id);
-  
-  if (filteredQuestions.length === questions.length) {
-    return res.status(404).json({ error: 'Question not found' });
-  }
-  
-  fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(filteredQuestions, null, 2));
-  
-  // Also delete votes for this question
-  const votes = readVotes();
-  delete votes[id];
-  writeVotes(votes);
-  
-  res.json({ success: true });
-});
-
-// Initialize data and start server
-// initializeData(); // DISABLED for Vercel (read-only filesystem)
-
+// Start server
 app.listen(PORT, () => {
   console.log(`
   📊 Predict the People is running!
   
-  Open your browser and go to: http://localhost:${PORT}
+  Server listening on port ${PORT}
   
   Press Ctrl+C to stop the server.
   `);
