@@ -1510,3 +1510,200 @@ header h1 {
     gap: 0;
     margin-bottom: 8px;
 }
+/* ========================================
+   LOCKED/RESULTS VIEW FIXES
+   Add these to styles.css
+   ======================================== */
+
+/* Results card - remove share button and date */
+.results-header-bar {
+    display: none !important;
+}
+
+/* Results subtitle styling - match mobile preview */
+.results-subtitle {
+    text-align: left !important;
+    line-height: 1.8 !important;
+    margin-bottom: 20px !important;
+}
+
+.results-subtitle div {
+    margin-bottom: 4px;
+}
+
+/* Results placeholder / Locked container styling */
+.results-placeholder {
+    background: #f8fafc !important;
+    border: 2px dashed #cbd5e1 !important;
+    border-radius: 16px !important;
+    padding: 32px 24px !important;
+    text-align: center !important;
+}
+
+.thanks-large {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: #667eea !important;
+    margin-bottom: 12px !important;
+}
+
+.unlock-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: #64748b !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 24px !important;
+}
+
+/* Locked countdown - gradient boxes */
+.locked-countdown {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    margin: 24px 0 !important;
+}
+
+.countdown-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 10px !important;
+    padding: 14px 16px !important;
+    min-width: 70px !important;
+}
+
+.countdown-number {
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    color: white !important;
+    line-height: 1 !important;
+}
+
+.countdown-label-small {
+    font-size: 0.6rem !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    margin-top: 6px !important;
+}
+
+/* Live indicator */
+.live-indicator {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    color: #10b981 !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+.live-dot {
+    width: 8px !important;
+    height: 8px !important;
+    background: #10b981 !important;
+    border-radius: 50% !important;
+    animation: livePulse 2s ease-in-out infinite !important;
+}
+
+/* Sign in card - match mobile preview */
+.signin-card,
+#loginPrompt {
+    background: white !important;
+    border: 2px dashed #cbd5e1 !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    text-align: center !important;
+    margin-top: 24px !important;
+}
+
+.signin-card p,
+#loginPrompt p {
+    color: #1a1a1a !important;
+    font-size: 1rem !important;
+    margin-bottom: 16px !important;
+    font-weight: 500 !important;
+}
+
+.signin-btn,
+.btn-signin {
+    width: 100% !important;
+    padding: 14px !important;
+    background: #667eea !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+.signin-btn:hover,
+.btn-signin:hover {
+    background: #5568d3 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Past Polls section - OUTSIDE card */
+.past-questions-section {
+    margin-top: 40px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.past-questions-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    margin-bottom: 8px !important;
+}
+
+.past-questions-title {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin: 0 !important;
+}
+
+.past-questions-subtitle {
+    color: #64748b !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 20px !important;
+}
+
+/* Past poll cards - add status badges */
+.past-poll-meta {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.past-poll-votes {
+    color: #64748b !important;
+    font-size: 0.85rem !important;
+}
+
+.past-poll-status {
+    color: #10b981 !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.past-poll-status.answered {
+    color: #10b981 !important;
+}
+
+.past-poll-status.unanswered {
+    color: #f59e0b !important;
+}
+
+/* Remove date and old "View results" text */
+.past-poll-date {
+    display: none !important;
+}
