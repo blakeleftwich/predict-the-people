@@ -231,39 +231,38 @@ app.get('/api/question/:id', async (req, res) => {
 
 // Get last 5 questions
 app.get('/api/past-questions', async (req, res) => {
-  try {
-    const today = getTodayDate();
-    
-    // Fetch past questions from Supabase (last 5, EXCLUDING today)
-    const { data, error } = await supabase
-      .from('poll_questions')
-      .select('*')
-      .lt('published_at', today)  // Changed from lte to lt - exclude today
-      .order('published_at', { ascending: false })
-      .limit(5);
-    
-    if (error) {
-      console.error('Supabase error:', error);
-      return res.json([]);
+    try {
+        const { data, error } = await supabase
+            .from('questions')
+            .select('*')
+            .lt('date', currentDate)
+            .order('date', { ascending: false })
+            .limit(10);
+        
+        if (error) throw error;
+        
+        // Get vote counts for each question
+        const questionsWithStatus = await Promise.all(data.map(async (q) => {
+            // Count total votes for this question
+            const { count, error: countError } = await supabase
+                .from('votes')
+                .select('*', { count: 'exact', head: true })
+                .eq('question_id', q.id);
+            
+            return {
+                ...q,
+                canAnswer: isWithinAnswerPeriod(q.date),
+                canViewResults: isAfterUnlockTime(q.date),
+                imageUrl: q.image_url || DEFAULT_IMAGES.question,
+                totalVotes: count || 0
+            };
+        }));
+        
+        res.json(questionsWithStatus);
+    } catch (error) {
+        console.error('Error fetching past questions:', error);
+        res.status(500).json({ error: 'Failed to fetch past questions' });
     }
-    
-    // Convert Supabase format to app format
-    const pastQuestions = (data || []).map(q => {
-      const question = {
-        id: q.id,
-        date: q.published_at,
-        question: q.question_text,
-        choices: q.options,
-        imageUrl: q.image_url || DEFAULT_IMAGES.question // Use custom or default
-      };
-      return getQuestionStatus(question);
-    });
-    
-    res.json(pastQuestions);
-  } catch (error) {
-    console.error('Error fetching past questions:', error);
-    res.json([]);
-  }
 });
 
 // Submit answer and majority guess
