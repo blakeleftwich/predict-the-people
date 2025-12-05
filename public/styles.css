@@ -1484,3 +1484,29 @@ header h1 {
 .poll-hero-image[style*="display: block"] {
     display: block !important;
 }
+
+/* Fix question heading colors - should be black not blue */
+.poll-question {
+    color: #1e293b !important;
+}
+
+/* Fix "You chose" indicator styling */
+.choice-indicator {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.user-choice-highlight {
+    color: #667eea !important;
+    font-weight: 600 !important;
+    font-style: normal !important; /* NOT italicized */
+}
+
+/* Remove icon spacing for Past Polls header */
+.past-questions-header {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 8px;
+}
