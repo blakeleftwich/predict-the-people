@@ -854,7 +854,7 @@ async function loadPastQuestions() {
         
         if (pastQuestions.length === 0) {
             const emptyMessage = '<p style="text-align: center; color: #999;">No past questions yet. Check back tomorrow!</p>';
-            if (listContainer) listContainer.innerHTML = emptyMessage;
+            
             if (listContainerLocked) listContainerLocked.innerHTML = emptyMessage;
             if (listContainerResults) listContainerResults.innerHTML = emptyMessage;
         } else {
