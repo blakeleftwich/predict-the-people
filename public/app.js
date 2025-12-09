@@ -250,6 +250,8 @@ async function init() {
 
 // Display Question
 function displayQuestion(question) {
+    stopLiveResultsPolling(); // Stop polling when leaving locked view
+    
     // Hide loading screen
     document.getElementById('loadingScreen').classList.add('hidden');
     
@@ -438,6 +440,8 @@ function markResultsAsViewed(questionId) {
 
 // Show Results
 async function showResults(questionId, forceAnimation = false) {
+    stopLiveResultsPolling(); // Stop polling when leaving locked view
+    
     try {
         const response = await fetch(`/api/results/${questionId}`);
         const data = await response.json();
@@ -812,9 +816,6 @@ function showLockedView(question) {
     // Hide loading screen
     document.getElementById('loadingScreen').classList.add('hidden');
     
-    // Hide loading screen
-    document.getElementById('loadingScreen').classList.add('hidden');
-    
     // Start countdown timer
     startCountdown(question.date);
     
@@ -822,6 +823,9 @@ function showLockedView(question) {
     document.getElementById('lockedSignInBtn').onclick = () => {
         document.getElementById('authButton').click();
     };
+    
+    // Start live results polling
+    startLiveResultsPolling(question.id);
     
     showView('lockedView');
 }
@@ -1232,3 +1236,81 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ===== LIVE RESULTS PREVIEW FUNCTIONS =====
+async function loadLiveResults(questionId) {
+    try {
+        const response = await fetch(`/api/results/${questionId}`);
+        const data = await response.json();
+        
+        if (!data.locked) {
+            return;
+        }
+        
+        displayLiveResults(data);
+        
+    } catch (error) {
+        console.error('Error loading live results:', error);
+    }
+}
+
+function displayLiveResults(data) {
+    const container = document.getElementById('liveResultsContainer');
+    if (!container) return;
+    
+    const results = data.results || [];
+    const totalVotes = data.totalVotes || 0;
+    
+    let maxPercentage = 0;
+    results.forEach(r => {
+        if (r.percentage > maxPercentage) {
+            maxPercentage = r.percentage;
+        }
+    });
+    
+    container.classList.add('updating');
+    setTimeout(() => container.classList.remove('updating'), 1000);
+    
+    const html = results.map(result => {
+        const isLeading = result.percentage === maxPercentage && maxPercentage > 0;
+        const voteCount = Math.round((result.percentage / 100) * totalVotes);
+        
+        return `
+            <div class="live-result-row ${isLeading ? 'leading' : ''}">
+                <div class="live-result-label">
+                    <span class="live-result-choice">${result.choice}</span>
+                    <div class="live-result-stats">
+                        <span class="live-result-percentage">${result.percentage}%</span>
+                        <span class="live-result-count">${voteCount} vote${voteCount !== 1 ? 's' : ''}</span>
+                    </div>
+                </div>
+                <div class="live-result-bar-container">
+                    <div class="live-result-bar" style="width: ${result.percentage}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html || '<p style="text-align: center; color: #94a3b8;">No votes yet</p>';
+}
+
+let liveResultsInterval = null;
+
+function startLiveResultsPolling(questionId) {
+    if (liveResultsInterval) {
+        clearInterval(liveResultsInterval);
+    }
+    
+    loadLiveResults(questionId);
+    
+    liveResultsInterval = setInterval(() => {
+        loadLiveResults(questionId);
+    }, 10000);
+}
+
+function stopLiveResultsPolling() {
+    if (liveResultsInterval) {
+        clearInterval(liveResultsInterval);
+        liveResultsInterval = null;
+    }
+}
