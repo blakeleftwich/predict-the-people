@@ -318,8 +318,8 @@ body {
 
 /* ===== COUNTDOWN CONTAINER ===== */
 .countdown-container {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 2px dashed #cbd5e1;
+   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 2px dashed #bfdbfe;
     border-radius: 16px;
     padding: 32px 24px;
     text-align: center;
@@ -1131,4 +1131,16 @@ LOCKED CARD:
 
 .thanks-large {
     text-align: center !important;
+}
+/* Locked card spacing fixes */
+#lockedQuestion {
+    margin-top: 24px !important;
+}
+
+#lockedSubtitle {
+    line-height: 1.4 !important;
+}
+
+#lockedSubtitle div {
+    margin-bottom: 4px !important;
 }
